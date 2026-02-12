@@ -2,10 +2,10 @@
 Welcome to my portfolio showcasing data analysis and operations projects. As a data analyst with experience in resource planning, forecasting, and optimization, these projects demonstrate my ability to turn complex data into actionable insights for supply chain and workforce management.
 
 ## About Me
-- **Name**: Erick [Your Last Name]
-- **Focus Areas**: Demand forecasting, workforce modeling, routing optimization, cohort analysis.
-- **Tools & Skills**: Python (Pandas, NumPy, OR-Tools), SQL, Excel/Power BI, data visualization.
-- **Contact**: [Your LinkedIn URL or email] | Brisbane, Australia
+- **Name**: Erick Mortera
+- **Focus Areas**: Routing optimization, demand forecasting, workforce modeling, routing optimization, and cohort analysis.
+- **Tools & Skills**: SQL, Python (Pandas, NumPy, OR-Tools), Excel/Power BI, data visualization.
+- **Contact**:erick.s.mortera@gmail.com
 
 ## Projects
 1. Efficient Parts Delivery Routing for Assembly Lines  

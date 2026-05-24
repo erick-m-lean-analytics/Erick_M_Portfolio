@@ -1,5 +1,5 @@
 # Automated JIT Logistics & Routing Optimisation
-### Digitising Toyota IE Planning Logic into a Python Optimisation Engine
+### Digitising Toyota Just-In-Time in-plant parts delivery planning Logic into a Python Optimisation Engine
 
 **Role:** Group Head — Logistics Planning Group
 **Project Type:** Micro-Logistics Optimisation & Resource Planning

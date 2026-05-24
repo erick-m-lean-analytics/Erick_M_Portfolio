@@ -121,7 +121,7 @@ Defined the logical From→To connections between nodes to mathematically enforc
 
 The NetworkX library was used to build a Directed Graph (DiGraph) of the factory floor. This allowed visual verification of edge weights (distances) and flow directionality before running any optimisation.
 
-![Digitised Factory Floor Layout](data/factory_floor_layout_cartesian.png)
+![Digitised Factory Floor Layout](output/factory_floor_layout_cartesian.png)
 
 **Script:** `factory_floor_layout.py`
 

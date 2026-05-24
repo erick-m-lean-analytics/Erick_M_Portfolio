@@ -46,7 +46,7 @@ The orange paths below show the actual optimised delivery routes mapped back ont
 
 Every node was extracted from the CAD layout and mapped to a coordinate system. Directed edges enforce one-way aisle constraints. Edge weights are real distances in metres. The result is a mathematical representation of the shop floor that the optimisation engine uses as its spatial foundation.
 
-![Digitised Factory Floor Layout](data/factory_floor_layout_cartesian.png)
+![Digitised Factory Floor Layout](output/factory_floor_layout_cartesian.png)
 
 > **What you are seeing:** Each circle is a physical location on the shop floor. Arrows show legal one-way travel paths. Numbers are distances in metres. The routing engine can only use paths that exist in this graph — illegal shortcuts are mathematically impossible.
 

@@ -34,13 +34,13 @@ The first step was translating the real factory floor into a mathematical repres
 
 This is the actual plant layout the logistics network was designed from — showing assembly lines (Chassis, Trim, Final, Engine), warehouse areas, and the physical aisles that constrain delivery routing.
 
-![Factory CAD Layout](Factory_CAD_layout.png)
+![Factory CAD Layout](data/Factory_CAD_layout.png)
 
 ### Step 2 — The Digitised Factory Graph (NetworkX DiGraph)
 
 Every node (workstation, intersection, staging area) was extracted from the CAD layout and mapped to a coordinate system. Directed edges enforce one-way aisle constraints. Edge weights are real distances in metres. Dijkstra's Algorithm was then applied to find the shortest legal path between every node pair — producing the distance matrix that feeds the optimisation engine.
 
-![Digitised Factory Floor Layout](factory_floor_layout_cartesian.png)
+![Digitised Factory Floor Layout](data/factory_floor_layout_cartesian.png)
 
 > **What you're seeing:** Each circle is a physical location on the shop floor. Arrows show legal one-way travel paths. Numbers are distances in metres. The routing engine can only use paths that exist in this graph — illegal shortcuts are mathematically impossible.
 

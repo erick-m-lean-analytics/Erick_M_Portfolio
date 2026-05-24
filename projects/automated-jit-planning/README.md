@@ -195,7 +195,7 @@ A grouping algorithm aggregates individual deliveries into unified trips based o
 
 **Script:** `delivery_bundling_levelled_with_traffic_check.py`
 
-![Milk Run Delivery Groups](output/img_milk_run.png)
+![Milk Run Delivery Groups](data/img_milk_run.png)
 
 > **What you are seeing:** Each row is one complete optimised milk-run trip — with assigned driver, aisle classification, scheduled start offset, duration, parts delivered, and the full outbound routing path. The engine generates all 109 trips simultaneously, levelled across the shift.
 
@@ -207,7 +207,7 @@ A grouping algorithm aggregates individual deliveries into unified trips based o
 
 The Gantt chart below shows a sample of 8 trips across 4 line groups and 3 drivers. Each colour represents one driver. Trips sharing the same aisle are sequenced back-to-back — never simultaneously — proving the traffic conflict prevention constraint is working correctly across the full schedule.
 
-![Milk Run Gantt Chart](data/gantt_milkrun.png)
+![Milk Run Gantt Chart](output/gantt_milkrun.png)
 
 > **What you are seeing:** Each horizontal bar is one milk-run trip. The x-axis is time in minutes from shift start. Trips on the same aisle (e.g. TRIP_006 and TRIP_007 on Chassis LH) are assigned to different drivers and sequenced so they never occupy the same aisle at the same time. The engine enforces this for all 109 trips automatically — zero manual checking required.
 

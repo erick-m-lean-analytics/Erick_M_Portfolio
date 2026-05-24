@@ -1,105 +1,149 @@
-# Automated JIT Logistics & Routing Optimisation - Detailed Case Study
+# Automated JIT Logistics & Routing Optimisation
+### Digitising Toyota IE Planning Logic into a Python Optimisation Engine
 
-**Role: Group Head - Logistics Planning Group**
+**Role:** Group Head — Logistics Planning Group
+**Project Type:** Micro-Logistics Optimisation & Resource Planning
 
-Project Type: Micro-Logistics Optimisation & Resource Planning
-
-## Project Overview
-This project digitises the complex manual engineering planning process used for Just-In-Time (JIT) parts delivery in high-precision manufacturing. By translating Toyota-style Industrial Engineering (IE) logic into a Python-based optimisation engine, I developed a tool that determines minimum lead times, optimises fleet size, and generates precise delivery schedules to maintain a synchronised flow while preventing traffic congestion.
-
-## Problem Statement: The Operational Planning Bottleneck
-In high-volume JIT environments, designing synchronised routes that minimise operational cost is an iterative and time-intensive process. Because a planner must manually simulate the dynamic interactions between Takt Time, container volumes, and physical path constraints, even minor changes to production variables require a total recalculation. Without the speed of a digital tool, the planning lead time is significantly prolonged, especially as the logistics network grows in complexity.
-
-## Methodology
-### 1. Digital Geography & Pathing Logic
-To digitise the physical environment, I translated the plant’s CAD layout into a structured coordinate system, forming the spatial foundation of the routing engine.
-
-  **1.1  Spatial Node Mapping:** Extracted (x, y) coordinates from the plant layout to define critical nodes, including the Warehouse (Depot), Line-side Delivery Stations, and Transit Points.
-
-  To maintain high-fidelity with the physical shop floor, the following Node Classification was used:
-
-  Code - Description: 
-
-  TR/TL - TrimLine Station (Right/Left Handside),  C - Chassis Line Station,  F - Final Line Station,  EG - Engine Line Station,  AC_B - Aircon Building,  T0 - Trim zero (Start of Assembly Line),  SML_Dr - Small parts drop off point,  SML_St - Small parts delivery staging area,  
-Bulky_1 - Bulky parts staging area No.1/No.2,  I_17 - Intersection No.17
-
-  - Source Visual: [`Plant CAD layout.png`](./data/Factory_CAD_layout.png) 
-  - Output: [`Node_coordinates.csv`](./data/Node_coordinates.csv)
- 
-
-  **1.2  Directed Edge (path) Construction - routing logic:** 
-Defined the logical "From-To" connections between nodes to mathematically enforce the physical flow of the facility. By utilising Directed Edges, I ensured the routing engine strictly respects one-way aisle constraints and prevents illegal "backward" movements.
-
-  - Output: [`From_To.csv`](./data/From_To.csv) 
-  
-  **1.3  Graph Visualisation of the shop-floor layout:** Utilised the NetworkX library to build a Directed Graph (DiGraph) of the factory floor. This allowed for visual verification of edge weights (distances) and flow directionality.
-  - Script: [`factory_floor_layout.py`](./module/factory_floor_layout.py) 
-  - Output: [`Factory graph visualisation`](./output/factory_floor_layout_cartesian.png) 
-  
-  **1.4 Distance Matrix Generation & Finding the shortest path between nodes:** Implemented Dijkstra’s Algorithm to **calculate the absolute shortest legal path** between every node pair. The result is an N x N Distance Matrix that serves as the primary input for the optimisation solver.
-  - Script: [`master_distance_matrix.py`](./module/master_distance_matrix.py) 
-  - Output: [`Distance_Matrix.csv`](./output/From_To_Distance_Matrix_Meters.csv) 
-
-
-  ### 2. Workload Modelling & Service Standards (Gentan-i)
-
-  To determine the optimal fleet size (drivers and tow-tractors) for any given demand, I calculated the precise Work Content for every delivery cycle. This phase translated physical handling constraints into high-fidelity time standards.
-> [!IMPORTANT]
-> This is the step where the input (production demand) can be adjusted for sensitivity analysis before running the subsequent scripts
->
-
-  **2.1 Service Time Standardisation:** 
-Mapped SKU-specific container types (Dunnage, Regular Dollies, and Custom Dollies) to their respective Standard Unloading/Loading Times. 
-  - Logic Applied: Integrated the Gentan-i (standard time per unit of work) for vehicle travel speed, calibrated at 1.6s/m.
-  - Scope: Focused on a specific vehicle-model segment within a Mixed-Model Production System to simulate high-complexity delivery requirements.
-  - Output: [`Demand.csv`](./data/Demand.csv) 
-
-  **2.2 Workload Explosion:** 
-Generated a comprehensive task list by intersecting the delivery frequencies (i.e. 10, 50, 100-min cycles for the current Takt time) with standardised service times and required trip counts. This "exploded" the data into individual work elements, including travel times, service durations, and specific routes, to calculate the total required man-seconds.
-  - Script: [`delivery_tasks_list.py`](./module/delivery_tasks_list.py) 
-  - Output: [`Exploded_Task_List.csv`](./output/Exploded_Tasks_Verification.csv) 
-
-  **2.3 Spatial Validation:** Cross-referenced all generated delivery routes and calculated travel times against the digital graph to ensure 100% alignment with physical aisle constraints.
-  - Compare: [`Factory graph visualisation`](./output/factory_floor_layout_cartesian.png)  vs [`Exploded_Task_List.csv`](./output/EXploded_Tasks_Verification.csv) 
-    
-### 3. Constraint-Based Routing Optimisation (CVRP)
-Utilised a Standardised 3-Slot Batch Constraint to aggregate the exploded task list into synchronised Milk Run trips. This stage focused on maximising tow tractor utilisation while respecting physical line-side space and equipment payload limits.
-
-  **3.1 Intelligent Trip Bundling and Levelled deliveries (Heijunka):**
-Developed a grouping algorithm that aggregates individual deliveries into unified trips based on:
-  - Geographical Clustering: Grouping tasks by shared Lineside_Group to eliminate redundant travel "Muda."
-  - Unified Path Physics: Identifying the furthest node within a bundle to calculate a single, accurate round-trip duration, preventing the "double-counting" of distances common in manual planning.
-  - Pull-System (Levelled production): Enforcing a "No Duplicate Parts" constraint per trip to respect limited rack footprints at workstations and avoid inventory waste.
-  - Traffic Congestion Prevention: Ensuring no simultaneous deliveries occur on the same aisle
-    
-  - Script: [`delivery_bundling_levveled_with_traffic_check.py`](./module/delivery_bundling_levelled_with_traffic_check.py) 
-  - Output: [`MIlk_Run_Delivery_Groups.csv`](./output/Milk_Run_Delivery_Groups_levelled.csv)
-
-  **3.2 Quantified Resource Reduction:**
-By aggregating the total required man-seconds (Travel + Service) across the 450-minute shift, the engine mathematically determined the minimum required fleet size.
+---
 
 > [!IMPORTANT]
-> **Key Result: 40% Efficiency Gain**
+> ## Key Result: 40% Fleet Efficiency Gain
+> | Metric | Manual Planning | Optimised Engine |
+> |---|---|---|
+> | Drivers / Tuggers Required | **5** | **3** |
+> | Driver Utilisation | Unknown / untracked | **86%** |
+> | Total Work Content (per shift) | Estimated manually | **70,079 seconds — mathematically proven** |
+> | Planning Method | Iterative, recalculated manually | **Automated — reruns in seconds** |
+> | SKUs Managed | 54 parts | 54 parts |
+> | Delivery Trips Generated | Manual estimate | **109 synchronised milk-run trips** |
+> | Production Lines Covered | 9 line groups | 9 line groups |
 
-The optimisation engine proved that the plant's production demand could be met with 3 drivers/tuggers instead of the 5 previously required by manual planning.
-  - Total Work Content: 70,079.86 Seconds
-  - Theoretical Headcount: 2.60 Drivers
-  - Actual Requirement: 3 Drivers (Operating at 86% utilization)
+---
+
+## What This Project Does — In One Sentence
+
+It takes the complex, time-intensive manual process an Industrial Engineer uses to plan JIT parts delivery in a Toyota assembly plant — and replaces it with a Python engine that produces the same output in seconds, with mathematical proof of the minimum fleet required.
+
+---
+
+## From Physical Plant to Digital Model
+
+The first step was translating the real factory floor into a mathematical representation the optimisation engine could work with.
+
+### Step 1 — The Physical Plant (Source: Toyota Assembly Plant CAD Layout)
+
+This is the actual plant layout the logistics network was designed from — showing assembly lines (Chassis, Trim, Final, Engine), warehouse areas, and the physical aisles that constrain delivery routing.
+
+![Factory CAD Layout](Factory_CAD_layout.png)
+
+### Step 2 — The Digitised Factory Graph (NetworkX DiGraph)
+
+Every node (workstation, intersection, staging area) was extracted from the CAD layout and mapped to a coordinate system. Directed edges enforce one-way aisle constraints. Edge weights are real distances in metres. Dijkstra's Algorithm was then applied to find the shortest legal path between every node pair — producing the distance matrix that feeds the optimisation engine.
+
+![Digitised Factory Floor Layout](factory_floor_layout_cartesian.png)
+
+> **What you're seeing:** Each circle is a physical location on the shop floor. Arrows show legal one-way travel paths. Numbers are distances in metres. The routing engine can only use paths that exist in this graph — illegal shortcuts are mathematically impossible.
+
+---
+
+## How the Engine Works — 4-Stage Pipeline
+
+```
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│   STAGE 1           │     │   STAGE 2           │     │   STAGE 3           │     │   STAGE 4           │
+│   Spatial Mapping   │────▶│  Workload Modelling │────▶│  Route Optimisation │────▶│  Fleet Sizing       │
+│                     │     │                     │     │                     │     │                     │
+│ • CAD → coordinates │     │ • 54 SKUs exploded  │     │ • Geographic        │     │ • Total man-seconds │
+│ • Node classification│    │   into task list    │     │   clustering        │     │   summed across     │
+│ • Directed edges    │     │ • Gentan-i time     │     │ • No duplicate      │     │   450-min shift     │
+│   (one-way aisles)  │     │   standards applied │     │   parts per trip    │     │ • Minimum drivers   │
+│ • Dijkstra shortest │     │ • Travel + service  │     │ • Traffic conflict  │     │   calculated:       │
+│   path → distance   │     │   time calculated   │     │   prevention        │     │   3 drivers @ 86%   │
+│   matrix            │     │   per delivery      │     │ • 109 milk-run      │     │   utilisation       │
+│                     │     │                     │     │   trips generated   │     │                     │
+│ Output: Distance    │     │ Output: Exploded    │     │ Output: Milk Run    │     │ Output: Proven      │
+│ Matrix (N×N)        │     │ Task List           │     │ Delivery Groups     │     │ fleet size          │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+```
+
+---
+
+## Stage 3 Output — Sample Milk Run Trips Generated
+
+Each row below is one optimised milk-run trip produced by the engine. The routing path is the exact sequence of nodes the tugger driver follows — derived from the shortest-path distance matrix, respecting all one-way aisle constraints.
+
+| Trip | Line Group | Dollies | Furthest Stop | Routing Path | Travel (s) | Service (s) | Total Cycle (s) |
+|------|-----------|---------|--------------|-------------|-----------|------------|----------------|
+| TRIP_001 | AC Building | 2 | AC_B | `SML_Dr → I_26 → I_27 → AC_B` | 603.5 | 48 | 651.5 |
+| TRIP_006 | Chassis LH | 3 | CL5 | `I_14 → I_15 → EG_L1 → EG_L2 → EG_L3 → CL1 → CL2 → CL3 → CL4 → CL5` | 223.6 | 72 | 295.6 |
+| TRIP_026 | Chassis RH | 3 | CR5 | `SML_St → I_21 → I_19 → EG_R1 → EG_R2 → EG_R3 → CR1 → CR2 → CR3 → CR4 → CR5` | 287.4 | 128 | 415.4 |
+| TRIP_036 | Engine RH | 2 | EG_R1 | `SML_St → I_21 → I_19 → EG_R1` | 163.8 | 104 | 267.8 |
+| TRIP_041 | Final LH | 3 | FL3 | `Bulky_1 → SML_Dr → I_26 → I_27 → I_25 → FL1 → FL2 → FL3` | 649.4 | 128 | 777.4 |
+
+> **Bundling logic applied:** Parts are grouped by shared line-side zone to eliminate redundant travel (Muda). Only the furthest node in a bundle is used to calculate round-trip duration — preventing the distance double-counting common in manual planning. No duplicate parts appear in the same trip, respecting limited rack space at each workstation.
+
+---
+
+## Constraints Engineered Into the System
+
+These are the shop-floor rules that were translated into algorithmic constraints — the same rules an experienced IE planner carries in their head, now enforced mathematically:
+
+| Shop-Floor Rule | How It Was Encoded |
+|---|---|
+| One-way aisles | Directed edges in the NetworkX DiGraph — illegal paths simply don't exist |
+| No duplicate parts per trip | Hard constraint in the bundling algorithm — enforces lineside rack space limits |
+| No simultaneous deliveries on same aisle | Traffic conflict detection across all concurrent trips |
+| Takt-synchronised delivery frequency | Delivery cycles (10, 50, 100-min) derived from current Takt time |
+| Container type determines service time | Gentan-i time standards mapped per SKU container type (Dunnage / Regular Dolly / Custom Dolly) |
+| Furthest-node travel time | Single round-trip calculation per bundle — not summed per stop, eliminating double-counting |
+
+---
+
+## Why This Matters Beyond Toyota
+
+The logic in this engine is **industry-agnostic**. The same four-stage pipeline applies to any facility where synchronised point-of-use delivery is required:
+
+- **Mining:** Scheduled parts delivery to drill rigs or processing stations
+- **Distribution Centres:** Milk-run replenishment from bulk storage to pick faces
+- **Hospitals:** Sterile supplies delivery to operating theatres on timed cycles
+- **Truck Body Manufacturing:** Sub-assembly kitting delivery to fabrication workstations
+
+The inputs change. The logic — spatial mapping, workload explosion, route bundling, fleet sizing — stays the same.
+
+---
 
 ## Tech Stack
-- Python: Core logic and automation
-- NetworkX: Logistics visualisation
-- Pandas/NumPy: Data manipulation and matrix mathematics
 
-## Skills Demonstrated
-- Translation of Industrial Engineering (TPS) principles into algorithmic constraints
-- Optimisation of high-frequency micro-logistics and "Point-of-Use" delivery
-- Resource capacity planning and fleet size determination
-- Designing industry-agnostic logic applicable to Mining, Warehousing, and Manufacturing
+| Tool | Purpose |
+|---|---|
+| **Python** | Core logic, automation, constraint enforcement |
+| **NetworkX** | Factory floor DiGraph, shortest-path (Dijkstra), graph visualisation |
+| **Pandas / NumPy** | Data manipulation, task explosion, matrix mathematics |
+| **OR-Tools / Custom Bundling** | Constraint-based trip aggregation and traffic conflict detection |
 
-Status: Completed 
+---
 
-**Confidentiality Note:**
-This project utilises the actual planning methodologies and operational flow logic used in Toyota manufacturing facilities. To ensure data privacy, the plant location and specific production models have been anonymised; however, the distances, aisle constraints, and service-time variables represent a verified, functional shop-floor environment.
+## Project Files
 
-← [Back to Main Portfolio](../../README.md)
+| File | Description |
+|---|---|
+| `factory_floor_layout.py` | Builds the NetworkX DiGraph from node coordinates and directed edges |
+| `master_distance_matrix.py` | Runs Dijkstra's Algorithm to generate the full N×N distance matrix |
+| `delivery_tasks_list.py` | Explodes demand data into individual work elements with travel + service times |
+| `delivery_bundling_levelled_with_traffic_check.py` | Groups tasks into optimised milk-run trips with conflict detection |
+| `Factory_CAD_layout.png` | Source plant layout used for node coordinate extraction |
+| `factory_floor_layout_cartesian.png` | Digitised factory graph — visual verification of routing logic |
+| `Node_coordinates.csv` | (x, y) coordinates for all nodes |
+| `From_To.csv` | Directed edge definitions (legal paths) |
+| `Distance_Matrix.csv` | N×N shortest-path distance matrix output |
+| `Demand.csv` | SKU demand input — 54 parts, delivery frequencies, container types |
+| `Exploded_Task_List.csv` | Full task breakdown with routing paths and time calculations |
+| `Milk_Run_Delivery_Groups.csv` | Final output — 109 optimised milk-run trips across 9 line groups |
+
+---
+
+> **Confidentiality Note:** This project uses actual Toyota IE planning methodology and operational flow logic. Plant location and specific production model identifiers have been anonymised. Distances, aisle constraints, and service-time variables represent a verified, functional shop-floor environment.
+
+---
+
+[← Back to Main Portfolio](../../README.md)

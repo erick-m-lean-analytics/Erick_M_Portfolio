@@ -46,7 +46,7 @@ The image below shows all the aisles and intersections of the factory floor, eac
 
 Every node was extracted from the CAD layout and mapped to a coordinate system. Directed edges enforce one-way aisle constraints. Edge weights are real distances in metres. The result is a mathematical representation of the shop floor that the optimisation engine uses as its spatial foundation.
 
-![Digitised Factory Floor Layout](data/factory_floor_layout_cartesian.png)
+![Digitised Factory Floor Layout](output/factory_floor_layout_cartesian.png)
 
 > **What you are seeing:** Each circle is a physical location on the shop floor. Arrows show legal one-way travel paths. Numbers are distances in metres. The routing engine can only use paths that exist in this graph — illegal shortcuts are mathematically impossible.
 
@@ -121,7 +121,7 @@ Defined the logical From→To connections between nodes to mathematically enforc
 
 The NetworkX library was used to build a Directed Graph (DiGraph) of the factory floor. This allowed visual verification of edge weights (distances) and flow directionality before running any optimisation.
 
-![Digitised Factory Floor Layout](data/factory_floor_layout_cartesian.png)
+![Digitised Factory Floor Layout](output/factory_floor_layout_cartesian.png)
 
 **Script:** `factory_floor_layout.py`
 
@@ -195,7 +195,7 @@ A grouping algorithm aggregates individual deliveries into unified trips based o
 
 **Script:** `delivery_bundling_levelled_with_traffic_check.py`
 
-![Milk Run Delivery Groups](data/img_milk_run.png)
+![Milk Run Delivery Groups](output/img_milk_run.png)
 
 > **What you are seeing:** Each row is one complete optimised milk-run trip — with assigned driver, aisle classification, scheduled start offset, duration, parts delivered, and the full outbound routing path. The engine generates all 109 trips simultaneously, levelled across the shift.
 
